@@ -3,35 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text Storage</title>
+    <title>Send Email</title>
 </head>
 <body>
-    <h1>Store Text in Firestore</h1>
-    <textarea id="inputText" rows="4" cols="50" placeholder="Enter text here..."></textarea><br>
-    <button id="storeTextButton">Store Text</button>
+    <h1>Send an Email</h1>
+    <form id="emailForm">
+        <label for="to">To:</label>
+        <input type="email" id="to" name="to" required><br><br>
+        <label for="subject">Subject:</label>
+        <input type="text" id="subject" name="subject" required><br><br>
+        <label for="text">Message:</label><br>
+        <textarea id="text" name="text" rows="4" cols="50" required></textarea><br><br>
+        <button type="submit">Send Email</button>
+    </form>
 
     <script>
-        document.getElementById('storeTextButton').addEventListener('click', async () => {
-            const text = document.getElementById('inputText').value;
+        document.getElementById('emailForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const to = document.getElementById('to').value;
+            const subject = document.getElementById('subject').value;
+            const text = document.getElementById('text').value;
 
-            if (!text.trim()) {
-                alert('Please enter some text!');
-                return;
-            }
-
-            const response = await fetch('https://us-central1-pagecheck-d317c.cloudfunctions.net/storeText', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ text }),
-            });
-
-            if (response.ok) {
+            try {
+                const response = await fetch('https://us-central1-pagecheck-d317c.cloudfunctions.net/sendEmailAndStore', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ to, subject, text }),
+                });
                 const result = await response.text();
                 alert(result);
-            } else {
-                alert('Failed to store text. Please try again.');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to send email.');
             }
         });
     </script>
