@@ -15,10 +15,10 @@
         }
         #newContent {
             width: 50%; /* Make textarea half the page width */
-            height: 250px; /* Make textarea height similar to width for a square shape */
+            height: 250px; /* Initial height for a more square shape */
             font-size: 14px; /* Smaller font size for editing */
             padding: 8px; /* Add some padding */
-            resize: none; /* Prevent resizing */
+            resize: both; /* Allow resizing */
         }
         #submitButton:disabled,
         #verifyButton:disabled {
@@ -33,6 +33,11 @@
             white-space: pre-wrap; /* Preserve new lines and whitespace */
             font-size: 22px; /* Larger font size for current content display */
             line-height: 1.6; /* Increase line height for better readability */
+        }
+        #lastUpdated,
+        #modifiedBy {
+            font-size: 12px; /* Smaller font size for less prominence */
+            color: #999; /* Lighter color for subtle display */
         }
     </style>
     <script>
