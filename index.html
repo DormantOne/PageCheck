@@ -120,8 +120,8 @@
                 document.getElementById('lastUpdated').textContent = 'Last updated: ' + data.lastUpdated;
                 document.getElementById('modifiedBy').textContent = 'Modified by: ' + data.modifiedBy;
 
-                // Ensure new lines are correctly converted from <br> to ¶ for textarea
-                const plainTextContent = stripHtml(data.content).replace(/<br\s*\/?>/gi, '\n').replace(/\n/g, '¶\n');
+                // Convert HTML content to plain text and add pilcrow symbols for new lines
+                const plainTextContent = convertHtmlToPlainText(data.content);
                 document.getElementById('newContent').value = plainTextContent;
                 document.getElementById('newContent').setAttribute('readonly', 'true'); // Set textarea to read-only
             } catch (error) {
@@ -159,26 +159,30 @@
             content = content.replace(/\n/g, '<br>');
 
             // Convert URLs to clickable links
-            content = content.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1">$1</a> ');
+            content = content.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1">$1</a>');
             // Convert emails to mailto links
-            content = content.replace(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi, '<a href="mailto:$1">$1</a> ');
+            content = content.replace(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi, '<a href="mailto:$1">$1</a>');
             // Convert phone numbers to tel links
-            content = content.replace(/(\+?[0-9][0-9()\-\s]+[0-9])/g, '<a href="tel:$1">$1</a> ');
+            content = content.replace(/(\+?[0-9][0-9()\-\s]+[0-9])/g, '<a href="tel:$1">$1</a>');
             // Convert '---' or '===' to <hr> for page breaks
             content = content.replace(/^(---|===)$/gm, '<hr>');
 
             return content;
         }
 
-        // Function to strip HTML tags for plain text display and preserve new lines
-        function stripHtml(html) {
+        // Function to convert HTML content to plain text and preserve new lines
+        function convertHtmlToPlainText(html) {
             const div = document.createElement('div');
             div.innerHTML = html;
-            let text = div.textContent || div.innerText || '';
 
-            // Ensure spaces are preserved around HTML tags and new lines are handled properly
-            text = text.replace(/(<\/?[^>]+>)/g, ' $1 ').replace(/\s+/g, ' ').trim();  // Add spaces around HTML tags
-            text = text.replace(/<br\s*\/?>/gi, '\n'); // Convert <br> to new lines for textarea
+            // Convert <br> to newline characters and add pilcrow symbols
+            let text = div.innerHTML.replace(/<br\s*\/?>/gi, '\n'); // Convert <br> tags to newline
+
+            // Add spaces around HTML tags to prevent glomming
+            text = text.replace(/<\/?[^>]+(>|$)/g, ' $& ').replace(/\s+/g, ' ').trim();
+
+            // Remove any remaining HTML tags
+            text = text.replace(/<\/?[^>]+(>|$)/g, '');
 
             // Add pilcrow symbols for new lines
             text = text.replace(/\n/g, '¶\n');
