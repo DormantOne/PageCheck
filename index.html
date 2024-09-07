@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page Content Updater</title>
+    <title>Fact Sheet Updater</title>
     <style>
-        /* Add some simple styling for readability */
+        /* Styling for read-only and editable text areas */
+        #newContent[readonly] {
+            background-color: #f0f0f0; /* Grey out read-only field */
+            color: #666; /* Lighter text for read-only */
+        }
         #submitButton:disabled {
             background-color: gray; /* Darken the button when disabled */
             cursor: not-allowed;
@@ -61,6 +65,10 @@
                 document.getElementById('currentContent').textContent = data.content;
                 document.getElementById('lastUpdated').textContent = 'Last updated: ' + data.lastUpdated;
                 document.getElementById('modifiedBy').textContent = 'Modified by: ' + data.modifiedBy;
+
+                // Prefill textarea with current content and make it read-only
+                document.getElementById('newContent').value = data.content;
+                document.getElementById('newContent').setAttribute('readonly', 'true'); // Set textarea to read-only
             } catch (error) {
                 console.error('Error fetching current content:', error);
                 alert('Failed to fetch current content. Please try again later.');
@@ -77,6 +85,9 @@
                 });
 
                 const result = await response.json();
+                if (result.valid) {
+                    document.getElementById('newContent').removeAttribute('readonly'); // Unlock textarea for editing
+                }
                 return result.valid;
             } catch (error) {
                 console.error('Error verifying code:', error);
