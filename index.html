@@ -6,9 +6,17 @@
     <title>Fact Sheet Updater</title>
     <style>
         /* Styling for read-only and editable text areas */
+        body {
+            font-size: 18px; /* Increase base font size for the whole page */
+        }
         #newContent[readonly] {
             background-color: #f0f0f0; /* Grey out read-only field */
             color: #666; /* Lighter text for read-only */
+        }
+        #newContent {
+            width: 100%; /* Make textarea full width */
+            font-size: 18px; /* Increase font size */
+            padding: 10px; /* Add some padding */
         }
         #submitButton:disabled,
         #verifyButton:disabled {
@@ -18,6 +26,10 @@
         #processingMessage {
             display: none; /* Hidden by default */
             color: red;
+        }
+        #currentContent {
+            white-space: pre-wrap; /* Preserve new lines and whitespace */
+            font-size: 18px; /* Increase font size for current content */
         }
     </style>
     <script>
@@ -117,6 +129,9 @@
 
         // Function to format content before storing
         function formatContent(content) {
+            // Convert new lines to <br> for proper display
+            content = content.replace(/\n/g, '<br>');
+
             // Convert URLs to clickable links
             content = content.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1">$1</a>');
             // Convert emails to mailto links
