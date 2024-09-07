@@ -175,11 +175,13 @@
             const div = document.createElement('div');
             div.innerHTML = html;
 
-            // Convert <br> to newline characters and add pilcrow symbols
-            let text = div.innerHTML.replace(/<br\s*\/?>/gi, '\n'); // Convert <br> tags to newline
+            // Separate out <br> tags and ensure they're outside of any <a> tags
+            let text = div.innerHTML.replace(/<a\s+href="([^"]+)"[^>]*>([^<]+)<\/a>/gi, (match, href, text) => {
+                return `<a href="${href.replace(/<br\s*\/?>/gi, '')}">${text}</a>`;
+            });
 
-            // Properly separate HTML content, adding spaces around URLs, and preserving text correctly
-            text = text.replace(/(<a\s+href=["'][^"']+["']>)([^<]+)(<\/a>)/gi, '$1$2$3 ');  // Fix URLs and prevent glomming
+            // Convert <br> to newline characters and add pilcrow symbols
+            text = text.replace(/<br\s*\/?>/gi, '\n');
 
             // Remove any remaining HTML tags
             text = text.replace(/<\/?[^>]+(>|$)/g, '');
