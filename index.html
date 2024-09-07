@@ -97,7 +97,7 @@
                 disableSubmitButton();
 
                 // Format the content before submission
-                const formattedContent = formatContent(newText.replace(/¶/g, '\n')); // Remove pilcrow symbols before sending
+                const formattedContent = formatContent(newText); // No need to remove symbols anymore
 
                 // Submit the formatted content
                 await submitUpdate(formattedContent, email);
@@ -106,6 +106,9 @@
                 resetForm();
                 document.getElementById('processingMessage').textContent = 'Content successfully updated!';
                 document.getElementById('processingMessage').style.display = 'block';
+
+                // Keep the textarea content after submission
+                document.getElementById('newContent').value = newText; 
             });
         });
 
@@ -120,10 +123,10 @@
                 document.getElementById('lastUpdated').textContent = 'Last updated: ' + data.lastUpdated;
                 document.getElementById('modifiedBy').textContent = 'Modified by: ' + data.modifiedBy;
 
-                // Convert HTML content to plain text and add pilcrow symbols for new lines
+                // Convert HTML content to plain text and preserve new lines
                 const plainTextContent = convertHtmlToPlainText(data.content);
                 document.getElementById('newContent').value = plainTextContent;
-                document.getElementById('newContent').removeAttribute('readonly'); // Ensure textarea is editable with the current content
+                document.getElementById('newContent').setAttribute('readonly', 'true'); // Set textarea to read-only
             } catch (error) {
                 console.error('Error fetching current content:', error);
                 alert('Failed to fetch current content. Please try again later.');
@@ -155,6 +158,9 @@
 
         // Function to format content before storing
         function formatContent(content) {
+            // Ensure proper quoting first
+            content = fixQuotesInHtml(content);
+
             // Convert new lines to <br> for proper display
             content = content.replace(/\n/g, '<br>');
 
@@ -173,24 +179,24 @@
             return content;
         }
 
-        // Function to convert HTML content to plain text and preserve new lines
+        // First Pass: Function to fix quotes in HTML content
+        function fixQuotesInHtml(content) {
+            // Correct quotes around href attributes
+            return content.replace(/<a\s+href="([^"]*?)(<br>)([^"]*?)"([^>]*?)>/gi, (match, p1, p2, p3, p4) => {
+                return `<a href="${p1}${p3}"${p4}>`; // Remove <br> within href quotes
+            });
+        }
+
+        // Second Pass: Convert HTML content to plain text and preserve new lines
         function convertHtmlToPlainText(html) {
             const div = document.createElement('div');
             div.innerHTML = html;
 
-            // Separate out <br> tags and ensure they're outside of any <a> tags
-            let text = div.innerHTML.replace(/<a\s+href="([^"]+)"[^>]*>([^<]+)<\/a>/gi, (match, href, text) => {
-                return `<a href="${href.replace(/<br\s*\/?>/gi, '')}">${text}</a>`;
-            });
-
-            // Convert <br> to newline characters and add pilcrow symbols
-            text = text.replace(/<br\s*\/?>/gi, '\n');
+            // Convert <br> to newline characters
+            let text = div.innerHTML.replace(/<br\s*\/?>/gi, '\n');
 
             // Remove any remaining HTML tags
             text = text.replace(/<\/?[^>]+(>|$)/g, '');
-
-            // Add pilcrow symbols for new lines
-            text = text.replace(/\n/g, '¶\n');
 
             return text;
         }
@@ -222,7 +228,6 @@
 
         // Function to reset the form after submission
         function resetForm() {
-            document.getElementById('newContent').value = '';
             document.getElementById('updateCode').value = '';
             document.getElementById('email').value = '';
             document.getElementById('submitButton').disabled = true; // Re-disable the submit button
