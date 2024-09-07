@@ -7,7 +7,7 @@
     <style>
         /* Styling for read-only and editable text areas */
         body {
-            font-size: 18px; /* Increase base font size for the whole page */
+            font-size: 20px; /* Increase base font size for the whole page */
         }
         #newContent[readonly] {
             background-color: #f0f0f0; /* Grey out read-only field */
@@ -17,6 +17,7 @@
             width: 100%; /* Make textarea full width */
             font-size: 18px; /* Increase font size */
             padding: 10px; /* Add some padding */
+            height: 150px; /* Reduce height for a more compact textarea */
         }
         #submitButton:disabled,
         #verifyButton:disabled {
@@ -29,7 +30,7 @@
         }
         #currentContent {
             white-space: pre-wrap; /* Preserve new lines and whitespace */
-            font-size: 18px; /* Increase font size for current content */
+            font-size: 20px; /* Increase font size for current content */
         }
     </style>
     <script>
@@ -95,8 +96,8 @@
                 document.getElementById('lastUpdated').textContent = 'Last updated: ' + data.lastUpdated;
                 document.getElementById('modifiedBy').textContent = 'Modified by: ' + data.modifiedBy;
 
-                // Prefill textarea with current content and make it read-only
-                document.getElementById('newContent').value = data.content.replace(/<[^>]+>/g, ''); // Remove HTML tags for plain text
+                // Prefill textarea with current content as plain text (remove HTML tags)
+                document.getElementById('newContent').value = stripHtml(data.content);
                 document.getElementById('newContent').setAttribute('readonly', 'true'); // Set textarea to read-only
             } catch (error) {
                 console.error('Error fetching current content:', error);
@@ -142,6 +143,13 @@
             content = content.replace(/^(---|===)$/gm, '<hr>');
 
             return content;
+        }
+
+        // Function to strip HTML tags for plain text display
+        function stripHtml(html) {
+            const div = document.createElement('div');
+            div.innerHTML = html;
+            return div.textContent || div.innerText || '';
         }
 
         // Function to submit the formatted content
@@ -204,7 +212,7 @@
 
     <!-- Modify Content Section -->
     <h2>Modify Content</h2>
-    <textarea id="newContent" rows="8" cols="50" placeholder="Enter new content here..."></textarea><br><br>
+    <textarea id="newContent" placeholder="Enter new content here..."></textarea><br><br>
     
     <label for="updateCode">Enter Update Code:</label>
     <input type="text" id="updateCode" placeholder="Enter the code you received via email" required><br><br>
