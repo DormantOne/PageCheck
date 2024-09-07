@@ -178,8 +178,8 @@
             // Convert <br> to newline characters and add pilcrow symbols
             let text = div.innerHTML.replace(/<br\s*\/?>/gi, '\n'); // Convert <br> tags to newline
 
-            // Add spaces around HTML tags to prevent glomming
-            text = text.replace(/<\/?[^>]+(>|$)/g, ' $& ').replace(/\s+/g, ' ').trim();
+            // Properly separate HTML content, adding spaces around URLs, and preserving text correctly
+            text = text.replace(/(<a\s+href=["'][^"']+["']>)([^<]+)(<\/a>)/gi, '$1$2$3 ');  // Fix URLs and prevent glomming
 
             // Remove any remaining HTML tags
             text = text.replace(/<\/?[^>]+(>|$)/g, '');
