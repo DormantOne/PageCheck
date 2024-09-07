@@ -175,9 +175,13 @@
             div.innerHTML = html;
             let text = div.textContent || div.innerText || '';
 
-            // Ensure spaces are preserved around HTML tags
+            // Ensure spaces are preserved around HTML tags and new lines are handled properly
             text = text.replace(/(<\/?[^>]+>)/g, ' $1 ').replace(/\s+/g, ' ').trim();  // Add spaces around HTML tags
             text = text.replace(/<br\s*\/?>/gi, '\n'); // Convert <br> to new lines for textarea
+
+            // Add pilcrow symbols for new lines
+            text = text.replace(/\n/g, '¶\n');
+
             return text;
         }
 
