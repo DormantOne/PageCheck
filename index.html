@@ -14,10 +14,11 @@
             color: #666; /* Lighter text for read-only */
         }
         #newContent {
-            width: 100%; /* Make textarea full width */
+            width: 50%; /* Make textarea half the page width */
+            height: 250px; /* Make textarea height similar to width for a square shape */
             font-size: 14px; /* Smaller font size for editing */
             padding: 8px; /* Add some padding */
-            height: 120px; /* Reduce height for a more compact textarea */
+            resize: none; /* Prevent resizing */
         }
         #submitButton:disabled,
         #verifyButton:disabled {
