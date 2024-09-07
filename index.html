@@ -14,8 +14,8 @@
             color: #666; /* Lighter text for read-only */
         }
         #newContent {
-            width: 40%; /* Make textarea slightly narrower */
-            height: 200px; /* Make textarea slightly shorter */
+            width: 35%; /* Make textarea slightly narrower */
+            height: 150px; /* Make textarea slightly shorter */
             font-size: 14px; /* Smaller font size for editing */
             padding: 8px; /* Add some padding */
             resize: both; /* Allow resizing */
@@ -40,6 +40,18 @@
             font-size: 12px; /* Smaller font size for less prominence */
             color: #999; /* Lighter color for subtle display */
         }
+        #modifyLabel {
+            font-size: 18px; /* Smaller font size by default */
+            color: #555; /* Subtle color */
+        }
+        .blinking {
+            animation: blinkingText 1.5s infinite; /* Blinking effect */
+        }
+        @keyframes blinkingText {
+            0% { color: #555; }
+            50% { color: #ff0000; }
+            100% { color: #555; }
+        }
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
@@ -63,6 +75,7 @@
                 if (codeValid) {
                     alert('Code verified successfully! You can now edit the content.');
                     enableSubmitButton(); // Enable the submit button after code verification
+                    showModifyNow(); // Indicate that the content is ready to modify
                 } else {
                     alert('Invalid code. Please check your email for the correct code.');
                 }
@@ -141,8 +154,8 @@
 
         // Function to format content before storing
         function formatContent(content) {
-            // Convert new lines to <br> for proper display
-            content = content.replace(/\n/g, '<br>');
+            // Convert new lines to <br> for proper display and add pilcrow (¶) symbol
+            content = content.replace(/\n/g, '¶<br>');
 
             // Convert URLs to clickable links
             content = content.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1">$1</a> ');
@@ -164,6 +177,13 @@
             
             // Add a space after each anchor or HTML element to prevent glomming
             return text.replace(/<br\s*\/?>/gi, '\n').replace(/<\/?[^>]+(>|$)/g, ' ').trim();
+        }
+
+        // Function to show "Modify Content Now" with blinking effect
+        function showModifyNow() {
+            const modifyLabel = document.getElementById('modifyLabel');
+            modifyLabel.textContent = "Modify Content Now";
+            modifyLabel.classList.add('blinking');
         }
 
         // Function to submit the formatted content
@@ -228,7 +248,7 @@
     <p id="modifiedBy">Modified by: N/A</p>
 
     <!-- Modify Content Section -->
-    <h2>Modify Content</h2>
+    <h2 id="modifyLabel">Modify Content</h2>
     <textarea id="newContent" placeholder="Enter new content here..."></textarea><br><br>
     
     <label for="updateCode">Enter Update Code:</label>
