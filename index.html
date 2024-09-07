@@ -62,14 +62,14 @@
                 // Disable button and show processing message
                 disableSubmitButton();
 
-                // Submit the updated content
-                await submitUpdate(newText, email);
+                // Format the content before submission
+                const formattedContent = formatContent(newText);
+
+                // Submit the formatted content
+                await submitUpdate(formattedContent, email);
 
                 enableSubmitButton();
             });
-
-            // Automatically format content in the modify window
-            document.getElementById('newContent').addEventListener('input', autoFormatContent);
         });
 
         // Function to fetch the current content, last update time, and modifier's email
@@ -79,12 +79,12 @@
                 const data = await response.json();
 
                 // Display current content for context
-                document.getElementById('currentContent').textContent = data.content;
+                document.getElementById('currentContent').innerHTML = data.content; // Render formatted HTML
                 document.getElementById('lastUpdated').textContent = 'Last updated: ' + data.lastUpdated;
                 document.getElementById('modifiedBy').textContent = 'Modified by: ' + data.modifiedBy;
 
                 // Prefill textarea with current content and make it read-only
-                document.getElementById('newContent').value = data.content;
+                document.getElementById('newContent').value = data.content.replace(/<[^>]+>/g, ''); // Remove HTML tags for plain text
                 document.getElementById('newContent').setAttribute('readonly', 'true'); // Set textarea to read-only
             } catch (error) {
                 console.error('Error fetching current content:', error);
@@ -115,7 +115,21 @@
             }
         }
 
-        // Function to submit the updated content
+        // Function to format content before storing
+        function formatContent(content) {
+            // Convert URLs to clickable links
+            content = content.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1">$1</a>');
+            // Convert emails to mailto links
+            content = content.replace(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi, '<a href="mailto:$1">$1</a>');
+            // Convert phone numbers to tel links
+            content = content.replace(/(\+?[0-9][0-9()\-\s]+[0-9])/g, '<a href="tel:$1">$1</a>');
+            // Convert '---' or '===' to <hr> for page breaks
+            content = content.replace(/^(---|===)$/gm, '<hr>');
+
+            return content;
+        }
+
+        // Function to submit the formatted content
         async function submitUpdate(content, email) {
             try {
                 const response = await fetch('https://us-central1-pagecheck-d317c.cloudfunctions.net/finalizeUpdate', {
@@ -131,24 +145,6 @@
                 console.error('Error finalizing update:', error);
                 alert('Failed to finalize update. Please try again later.');
             }
-        }
-
-        // Function to automatically format URLs, emails, phone numbers, and page breaks
-        function autoFormatContent() {
-            const textarea = document.getElementById('newContent');
-            let formattedText = textarea.value;
-
-            // Convert URLs to clickable links
-            formattedText = formattedText.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1">$1</a>');
-            // Convert emails to mailto links
-            formattedText = formattedText.replace(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi, '<a href="mailto:$1">$1</a>');
-            // Convert phone numbers to tel links
-            formattedText = formattedText.replace(/(\+?[0-9][0-9()\-\s]+[0-9])/g, '<a href="tel:$1">$1</a>');
-            // Convert '---' or '===' to <hr> for page breaks
-            formattedText = formattedText.replace(/^(---|===)$/gm, '<hr>');
-
-            // Update the textarea with formatted content
-            textarea.value = formattedText;
         }
 
         // Disable verify button
