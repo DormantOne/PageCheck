@@ -102,7 +102,8 @@
                 // Submit the formatted content
                 await submitUpdate(formattedContent, email);
 
-                enableSubmitButton();
+                // Reset the form after submission
+                resetForm();
                 document.getElementById('processingMessage').textContent = 'Content successfully updated!';
                 document.getElementById('processingMessage').style.display = 'block';
             });
@@ -208,6 +209,17 @@
                 console.error('Error finalizing update:', error);
                 alert('Failed to finalize update. Please try again later.');
             }
+        }
+
+        // Function to reset the form after submission
+        function resetForm() {
+            document.getElementById('newContent').value = '';
+            document.getElementById('updateCode').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('submitButton').disabled = true; // Re-disable the submit button
+            document.getElementById('processingMessage').style.display = 'none'; // Hide processing message
+            document.getElementById('modifyLabel').textContent = "Modify Content"; // Reset modify label
+            document.getElementById('modifyLabel').classList.remove('blinking'); // Remove blinking effect
         }
 
         // Disable verify button
