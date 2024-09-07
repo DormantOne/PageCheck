@@ -90,6 +90,8 @@
                 await submitUpdate(formattedContent, email);
 
                 enableSubmitButton();
+                document.getElementById('processingMessage').textContent = 'Content successfully updated!';
+                document.getElementById('processingMessage').style.display = 'block';
             });
         });
 
@@ -104,8 +106,9 @@
                 document.getElementById('lastUpdated').textContent = 'Last updated: ' + data.lastUpdated;
                 document.getElementById('modifiedBy').textContent = 'Modified by: ' + data.modifiedBy;
 
-                // Prefill textarea with current content as plain text (remove HTML tags and preserve new lines)
-                document.getElementById('newContent').value = stripHtml(data.content).replace(/<br\s*\/?>/gi, '\n');
+                // Ensure new lines are correctly converted from <br> to \n for textarea
+                const plainTextContent = stripHtml(data.content).replace(/<br\s*\/?>/gi, '\n');
+                document.getElementById('newContent').value = plainTextContent;
                 document.getElementById('newContent').setAttribute('readonly', 'true'); // Set textarea to read-only
             } catch (error) {
                 console.error('Error fetching current content:', error);
@@ -184,6 +187,8 @@
             const button = document.getElementById('verifyButton');
             button.disabled = true;
             button.textContent = 'Verifying...';
+            document.getElementById('processingMessage').textContent = 'Verifying code...';
+            document.getElementById('processingMessage').style.display = 'block';
         }
 
         // Enable verify button
@@ -191,6 +196,7 @@
             const button = document.getElementById('verifyButton');
             button.disabled = false;
             button.textContent = 'Verify Code';
+            document.getElementById('processingMessage').style.display = 'none';
         }
 
         // Disable submit button and show processing message
@@ -198,6 +204,7 @@
             const button = document.getElementById('submitButton');
             button.disabled = true;
             button.textContent = 'Processing...';
+            document.getElementById('processingMessage').textContent = 'Submitting content... Please wait.';
             document.getElementById('processingMessage').style.display = 'block';
         }
 
@@ -206,7 +213,6 @@
             const button = document.getElementById('submitButton');
             button.disabled = false;
             button.textContent = 'Submit New Content';
-            document.getElementById('processingMessage').style.display = 'none';
         }
     </script>
 </head>
