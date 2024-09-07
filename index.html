@@ -3,80 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Information Updater</title>
-    <style>
-        #helloWorld {
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-        #scratchPad {
-            width: 100%;
-            height: 100px;
-            margin-bottom: 10px;
-        }
-        #scratchPad[disabled] {
-            color: gray;
-        }
-    </style>
-</head>
-<body>
-    <h1 id="helloWorld">Hello World</h1>
-
-    <textarea id="scratchPad" disabled>Hello World</textarea><br><br>
-
-    <label for="updateCode">Enter Update Code:</label>
-    <input type="text" id="updateCode" required><br><br>
-
-    <button id="submitButton">Submit Code</button>
-    <button id="finalizeButton" disabled>Finalize</button>
-
-    <p id="updateStatus"></p>
-
+    <title>Page Content Updater</title>
     <script>
-        document.getElementById('submitButton').addEventListener('click', async () => {
-            const code = document.getElementById('updateCode').value;
-
+        document.addEventListener('DOMContentLoaded', async () => {
             try {
-                const response = await fetch('https://us-central1-pagecheck-d317c.cloudfunctions.net/verifyCode', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ code }),
-                });
+                // Fetch the current content, last update time, and modifier's email
+                const response = await fetch('https://us-central1-pagecheck-d317c.cloudfunctions.net/getCurrentContent');
+                const data = await response.json();
 
-                const result = await response.json();
-                if (result.valid) {
-                    document.getElementById('scratchPad').disabled = false;
-                    document.getElementById('finalizeButton').disabled = false;
-                } else {
-                    alert('Invalid code. Please try again.');
-                }
+                // Update the webpage with the latest content, timestamp, and email
+                document.getElementById('contentDisplay').textContent = data.content;
+                document.getElementById('lastUpdated').textContent = 'Last updated: ' + data.lastUpdated;
+                document.getElementById('modifiedBy').textContent = 'Modified by: ' + data.modifiedBy;
             } catch (error) {
-                console.error('Error:', error);
-                alert('Failed to verify code.');
-            }
-        });
-
-        document.getElementById('finalizeButton').addEventListener('click', async () => {
-            const content = document.getElementById('scratchPad').value;
-
-            try {
-                const response = await fetch('https://us-central1-pagecheck-d317c.cloudfunctions.net/finalizeUpdate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ content }),
-                });
-
-                const result = await response.text();
-                document.getElementById('updateStatus').innerText = result;
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Failed to finalize update.');
+                console.error('Error fetching current content:', error);
+                alert('Failed to fetch current content. Please try again later.');
             }
         });
     </script>
+</head>
+<body>
+    <h1 id="contentDisplay">Hello World</h1>
+    <p id="lastUpdated">Last updated: Never</p>
+    <p id="modifiedBy">Modified by: N/A</p>
 </body>
 </html>
