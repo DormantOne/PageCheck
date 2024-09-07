@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fact Sheet Updater</title>
     <style>
-        /* Styling for read-only and editable text areas */
+        /* General Styling */
         body {
-            font-size: 20px; /* Increase base font size for the whole page */
+            font-size: 22px; /* Increase base font size for the displayed content */
         }
         #newContent[readonly] {
             background-color: #f0f0f0; /* Grey out read-only field */
@@ -15,9 +15,9 @@
         }
         #newContent {
             width: 100%; /* Make textarea full width */
-            font-size: 18px; /* Increase font size */
-            padding: 10px; /* Add some padding */
-            height: 150px; /* Reduce height for a more compact textarea */
+            font-size: 14px; /* Smaller font size for editing */
+            padding: 8px; /* Add some padding */
+            height: 120px; /* Reduce height for a more compact textarea */
         }
         #submitButton:disabled,
         #verifyButton:disabled {
@@ -30,7 +30,8 @@
         }
         #currentContent {
             white-space: pre-wrap; /* Preserve new lines and whitespace */
-            font-size: 20px; /* Increase font size for current content */
+            font-size: 22px; /* Larger font size for current content display */
+            line-height: 1.6; /* Increase line height for better readability */
         }
     </style>
     <script>
@@ -96,8 +97,8 @@
                 document.getElementById('lastUpdated').textContent = 'Last updated: ' + data.lastUpdated;
                 document.getElementById('modifiedBy').textContent = 'Modified by: ' + data.modifiedBy;
 
-                // Prefill textarea with current content as plain text (remove HTML tags)
-                document.getElementById('newContent').value = stripHtml(data.content);
+                // Prefill textarea with current content as plain text (remove HTML tags and preserve new lines)
+                document.getElementById('newContent').value = stripHtml(data.content).replace(/<br\s*\/?>/gi, '\n');
                 document.getElementById('newContent').setAttribute('readonly', 'true'); // Set textarea to read-only
             } catch (error) {
                 console.error('Error fetching current content:', error);
@@ -145,11 +146,12 @@
             return content;
         }
 
-        // Function to strip HTML tags for plain text display
+        // Function to strip HTML tags for plain text display and preserve new lines
         function stripHtml(html) {
             const div = document.createElement('div');
             div.innerHTML = html;
-            return div.textContent || div.innerText || '';
+            const text = div.textContent || div.innerText || '';
+            return text.replace(/<br\s*\/?>/gi, '\n'); // Convert <br> to new lines for textarea
         }
 
         // Function to submit the formatted content
