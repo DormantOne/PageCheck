@@ -10,7 +10,8 @@
             background-color: #f0f0f0; /* Grey out read-only field */
             color: #666; /* Lighter text for read-only */
         }
-        #submitButton:disabled {
+        #submitButton:disabled,
+        #verifyButton:disabled {
             background-color: gray; /* Darken the button when disabled */
             cursor: not-allowed;
         }
@@ -24,31 +25,47 @@
             // Fetch and display the current content
             await fetchCurrentContent();
 
+            // Add event listener for the verify button
+            document.getElementById('verifyButton').addEventListener('click', async () => {
+                const updateCode = document.getElementById('updateCode').value;
+                
+                if (!updateCode) {
+                    alert('Please enter the update code.');
+                    return;
+                }
+
+                // Disable verify button while processing
+                disableVerifyButton();
+
+                // Verify the code
+                const codeValid = await verifyCode(updateCode);
+                if (codeValid) {
+                    alert('Code verified successfully! You can now edit the content.');
+                    enableSubmitButton(); // Enable the submit button after code verification
+                } else {
+                    alert('Invalid code. Please check your email for the correct code.');
+                }
+
+                enableVerifyButton(); // Re-enable the verify button
+            });
+
             // Add event listener for the submit button
             document.getElementById('submitButton').addEventListener('click', async () => {
                 const newText = document.getElementById('newContent').value;
-                const updateCode = document.getElementById('updateCode').value;
                 const email = document.getElementById('email').value;
 
-                if (!newText || !updateCode || !email) {
+                if (!newText || !email) {
                     alert('Please fill in all fields.');
                     return;
                 }
 
                 // Disable button and show processing message
-                disableButton();
+                disableSubmitButton();
 
-                // Verify the code first
-                const codeValid = await verifyCode(updateCode);
-                if (!codeValid) {
-                    alert('Invalid code. Please check your email for the correct code.');
-                    enableButton();
-                    return;
-                }
-
-                // If code is valid, submit the updated content
+                // Submit the updated content
                 await submitUpdate(newText, email);
-                enableButton();
+
+                enableSubmitButton();
             });
 
             // Automatically format content in the modify window
@@ -134,16 +151,30 @@
             textarea.value = formattedText;
         }
 
-        // Disable button and show processing message
-        function disableButton() {
+        // Disable verify button
+        function disableVerifyButton() {
+            const button = document.getElementById('verifyButton');
+            button.disabled = true;
+            button.textContent = 'Verifying...';
+        }
+
+        // Enable verify button
+        function enableVerifyButton() {
+            const button = document.getElementById('verifyButton');
+            button.disabled = false;
+            button.textContent = 'Verify Code';
+        }
+
+        // Disable submit button and show processing message
+        function disableSubmitButton() {
             const button = document.getElementById('submitButton');
             button.disabled = true;
             button.textContent = 'Processing...';
             document.getElementById('processingMessage').style.display = 'block';
         }
 
-        // Enable button and hide processing message
-        function enableButton() {
+        // Enable submit button and hide processing message
+        function enableSubmitButton() {
             const button = document.getElementById('submitButton');
             button.disabled = false;
             button.textContent = 'Submit New Content';
@@ -167,10 +198,12 @@
     <label for="updateCode">Enter Update Code:</label>
     <input type="text" id="updateCode" placeholder="Enter the code you received via email" required><br><br>
 
+    <button id="verifyButton">Verify Code</button><br><br>
+
     <label for="email">Your Email:</label>
     <input type="email" id="email" placeholder="Enter your email" required><br><br>
 
-    <button id="submitButton">Submit New Content</button>
+    <button id="submitButton" disabled>Submit New Content</button> <!-- Start as disabled -->
     <p id="processingMessage">Processing... Please wait.</p>
 
     <p id="updateStatus"></p>
