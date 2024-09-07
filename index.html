@@ -86,7 +86,9 @@
 
                 const result = await response.json();
                 if (result.valid) {
-                    document.getElementById('newContent').removeAttribute('readonly'); // Unlock textarea for editing
+                    // Unlock textarea for editing
+                    document.getElementById('newContent').removeAttribute('readonly'); // Correctly remove the 'readonly' attribute
+                    console.log("Code is valid. Textarea is now editable."); // Debugging message
                 }
                 return result.valid;
             } catch (error) {
