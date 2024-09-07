@@ -97,7 +97,7 @@
                 disableSubmitButton();
 
                 // Format the content before submission
-                const formattedContent = formatContent(newText); // No need to remove symbols anymore
+                const formattedContent = formatContent(newText); 
 
                 // Submit the formatted content
                 await submitUpdate(formattedContent, email);
@@ -158,14 +158,15 @@
 
         // Function to format content before storing
         function formatContent(content) {
-            // Ensure proper quoting first
-            content = fixQuotesInHtml(content);
+            // Step 1: Ensure proper quoting first by replacing URLs with placeholders
+            content = content.replace(/(https?:\/\/[^\s<>]+)/g, 'PLACEHOLDER_URL_$1_PLACEHOLDER_END');
 
-            // Convert new lines to <br> for proper display
+            // Step 2: Convert new lines to <br> for proper display
             content = content.replace(/\n/g, '<br>');
 
-            // Convert URLs to clickable links
-            content = content.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1">$1</a>');
+            // Step 3: Replace placeholders back with correctly formatted HTML links
+            content = content.replace(/PLACEHOLDER_URL_(https?:\/\/[^\s<>]+)_PLACEHOLDER_END/g, '<a href="$1">$1</a>');
+
             // Convert emails to mailto links
             content = content.replace(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi, '<a href="mailto:$1">$1</a>');
             // Convert phone numbers to tel links
@@ -179,15 +180,17 @@
             return content;
         }
 
-        // First Pass: Function to fix quotes in HTML content
+        // Function to fix malformed HTML content (e.g., quotes, <br> inside hrefs)
         function fixQuotesInHtml(content) {
-            // Correct quotes around href attributes
-            return content.replace(/<a\s+href="([^"]*?)(<br>)([^"]*?)"([^>]*?)>/gi, (match, p1, p2, p3, p4) => {
-                return `<a href="${p1}${p3}"${p4}>`; // Remove <br> within href quotes
+            // Correct quotes around href attributes and ensure no <br> inside href
+            return content.replace(/<a\s+href="([^"]*?)(<br\s*\/?>)([^"]*?)"([^>]*?)>/gi, (match, p1, p2, p3, p4) => {
+                // Combine and clean up href attribute content, remove <br> from within quotes
+                const cleanHref = `${p1}${p3}`.replace(/<br\s*\/?>/gi, '').trim();
+                return `<a href="${cleanHref}"${p4}>`;
             });
         }
 
-        // Second Pass: Convert HTML content to plain text and preserve new lines
+        // Convert HTML content to plain text and preserve new lines
         function convertHtmlToPlainText(html) {
             const div = document.createElement('div');
             div.innerHTML = html;
