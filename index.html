@@ -120,7 +120,7 @@
                 document.getElementById('modifiedBy').textContent = 'Modified by: ' + data.modifiedBy;
 
                 // Ensure new lines are correctly converted from <br> to ¶ for textarea
-                const plainTextContent = stripHtml(data.content).replace(/<br\s*\/?>/gi, '\n').replace(/\n/g, '¶\n');
+                const plainTextContent = stripHtml(data.content).replace(/<br\s*\/?>/gi, '¶\n');
                 document.getElementById('newContent').value = plainTextContent;
                 document.getElementById('newContent').setAttribute('readonly', 'true'); // Set textarea to read-only
             } catch (error) {
@@ -173,10 +173,11 @@
         function stripHtml(html) {
             const div = document.createElement('div');
             div.innerHTML = html;
-            const text = div.textContent || div.innerText || '';
-            
-            // Add a space after each anchor or HTML element to prevent glomming
-            return text.replace(/<br\s*\/?>/gi, '\n').replace(/<\/?[^>]+(>|$)/g, ' ').trim();
+            let text = div.textContent || div.innerText || '';
+
+            // Add a space after each HTML element to prevent glomming
+            text = text.replace(/<\/?[^>]+(>|$)/g, ' ').replace(/\s+/g, ' ').trim();  // Ensure space between HTML elements and words
+            return text.replace(/<br\s*\/?>/gi, '\n'); // Convert <br> to new lines for textarea
         }
 
         // Function to show "Modify Content Now" with blinking effect
