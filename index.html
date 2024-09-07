@@ -97,7 +97,7 @@
                 disableSubmitButton();
 
                 // Format the content before submission
-                const formattedContent = formatContent(newText);
+                const formattedContent = formatContent(newText.replace(/¶/g, '\n')); // Remove pilcrow symbols before sending
 
                 // Submit the formatted content
                 await submitUpdate(formattedContent, email);
@@ -119,8 +119,8 @@
                 document.getElementById('lastUpdated').textContent = 'Last updated: ' + data.lastUpdated;
                 document.getElementById('modifiedBy').textContent = 'Modified by: ' + data.modifiedBy;
 
-                // Ensure new lines are correctly converted from <br> to \n for textarea
-                const plainTextContent = stripHtml(data.content).replace(/<br\s*\/?>/gi, '\n');
+                // Ensure new lines are correctly converted from <br> to ¶ for textarea
+                const plainTextContent = stripHtml(data.content).replace(/<br\s*\/?>/gi, '\n').replace(/\n/g, '¶\n');
                 document.getElementById('newContent').value = plainTextContent;
                 document.getElementById('newContent').setAttribute('readonly', 'true'); // Set textarea to read-only
             } catch (error) {
@@ -154,8 +154,8 @@
 
         // Function to format content before storing
         function formatContent(content) {
-            // Convert new lines to <br> for proper display and add pilcrow (¶) symbol
-            content = content.replace(/\n/g, '¶<br>');
+            // Convert new lines to <br> for proper display
+            content = content.replace(/\n/g, '<br>');
 
             // Convert URLs to clickable links
             content = content.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1">$1</a> ');
